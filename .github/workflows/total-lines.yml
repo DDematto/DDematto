@@ -10,22 +10,59 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
 
       - name: Count lines of code
-        id: loc
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
         run: |
-          TOTAL_LINES=$(git ls-files | xargs wc -l | tail -n 1 | awk '{print $1}')
-          echo "TOTAL_LINES=$TOTAL_LINES" >> $GITHUB_ENV
+          python - <<EOF
+          import requests
+          import os
+
+          def get_repos(username):
+              url = f"https://api.github.com/users/{username}/repos"
+              headers = {"Authorization": f"token {os.environ['GH_TOKEN']}"}
+              repos = []
+              while url:
+                  response = requests.get(url, headers=headers)
+                  repos.extend(response.json())
+                  url = response.links.get('next', {}).get('url')
+              return [repo['full_name'] for repo in repos if not repo['fork']]
+
+          def count_lines(repo):
+              url = f"https://api.github.com/repos/{repo}/languages"
+              headers = {"Authorization": f"token {os.environ['GH_TOKEN']}"}
+              response = requests.get(url, headers=headers)
+              return sum(response.json().values())
+
+          username = "DDematto"
+          repos = get_repos(username)
+          total_lines = sum(count_lines(repo) for repo in repos)
+          
+          print(f"TOTAL_LINES={total_lines}")
+          with open(os.environ['GITHUB_ENV'], 'a') as env_file:
+              env_file.write(f"TOTAL_LINES={total_lines}\n")
+          EOF
 
       - name: Update README
         run: |
           sed -i 's/💻 \*\*Total Lines of Code Crafted:\*\* [0-9]*/💻 **Total Lines of Code Crafted:** '"$TOTAL_LINES"'/' README.md
 
       - name: Commit and push if changed
+        env:
+          PAT: ${{ secrets.PAT }}
         run: |
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
           git add -A
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update lines of code" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update lines of code" && git push https://$PAT@github.com/${{ github.repository }}.git)
