@@ -21,7 +21,7 @@ jobs:
 
       - name: Update README
         run: |
-          sed -i 's/Total Lines of Code Crafted: [0-9]*/Total Lines of Code Crafted: '"$TOTAL_LINES"'/' README.md
+          sed -i 's/💻 \*\*Total Lines of Code Crafted:\*\* [0-9]*/💻 **Total Lines of Code Crafted:** '"$TOTAL_LINES"'/' README.md
 
       - name: Commit and push if changed
         run: |

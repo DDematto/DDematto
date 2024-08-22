@@ -13,7 +13,7 @@ jobs:
 
       - name: Fetch GitHub Stats
         env:
-          GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TOTAL_COMMITS=$(gh api graphql -f query='
             query {
