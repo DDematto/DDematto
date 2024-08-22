@@ -1,0 +1,25 @@
+name: Update Lines of Code
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Run every Sunday at midnight
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-loc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Count lines of code
+        id: loc
+        run: echo "LOC=$(git ls-files | xargs wc -l | tail -n 1 | awk '{print $1}')" >> $GITHUB_OUTPUT
+      - name: Update README
+        run: |
+          sed -i 's/Total Lines of Code Crafted:.*/Total Lines of Code Crafted:** ${{ steps.loc.outputs.LOC }}/' README.md
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add -A
+          git commit -m "Update lines of code" || exit 0
+          git push
