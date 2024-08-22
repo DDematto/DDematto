@@ -8,7 +8,7 @@
 
 **[[ Portfolio Website ]](https://devindematto.dev)**
 
-💻 **Total Lines of Code Crafted:** 291461
+💻 **Total Lines of Code Crafted:** 291,461
 
 Showcases of my latest projects • My professional experience and skills • Ways to connect and collaborate
 

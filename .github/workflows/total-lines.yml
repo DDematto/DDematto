@@ -49,14 +49,15 @@ jobs:
           repos = get_repos(username)
           total_lines = sum(count_lines(repo) for repo in repos)
           
-          print(f"TOTAL_LINES={total_lines}")
+          formatted_total_lines = f"{total_lines:,}"
+          print(f"TOTAL_LINES={formatted_total_lines}")
           with open(os.environ['GITHUB_ENV'], 'a') as env_file:
-              env_file.write(f"TOTAL_LINES={total_lines}\n")
+              env_file.write(f"TOTAL_LINES={formatted_total_lines}\n")
           EOF
 
       - name: Update README
         run: |
-          sed -i 's/💻 \*\*Total Lines of Code Crafted:\*\* [0-9]*/💻 **Total Lines of Code Crafted:** '"$TOTAL_LINES"'/' README.md
+          sed -i 's/💻 \*\*Total Lines of Code Crafted:\*\* [0-9,]*/💻 **Total Lines of Code Crafted:** '"$TOTAL_LINES"'/' README.md
 
       - name: Commit and push if changed
         env:
@@ -65,4 +66,4 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add -A
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update GitHub stats" && git push "https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git")
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update lines of code" && git push "https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git")
