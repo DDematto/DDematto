@@ -9,17 +9,23 @@ jobs:
   update-loc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
+
       - name: Count lines of code
         id: loc
-        run: echo "LOC=$(git ls-files | xargs wc -l | tail -n 1 | awk '{print $1}')" >> $GITHUB_OUTPUT
+        run: |
+          TOTAL_LINES=$(git ls-files | xargs wc -l | tail -n 1 | awk '{print $1}')
+          echo "TOTAL_LINES=$TOTAL_LINES" >> $GITHUB_ENV
+
       - name: Update README
         run: |
-          sed -i 's/Total Lines of Code Crafted:.*/Total Lines of Code Crafted:** ${{ steps.loc.outputs.LOC }}/' README.md
+          sed -i 's/Total Lines of Code Crafted: [0-9]*/Total Lines of Code Crafted: '"$TOTAL_LINES"'/' README.md
+
       - name: Commit and push if changed
         run: |
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
           git add -A
-          git commit -m "Update lines of code" || exit 0
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update lines of code" && git push)
