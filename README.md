@@ -34,7 +34,7 @@ Showcases of my latest projects • My professional experience and skills • Wa
 <h3 align="center">📊 Code Chronicles</h3>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Total%20Commits-119-blue?style=for-the-badge&logo=github" alt="Total Commits"/>
+  <img src="https://img.shields.io/badge/Total%20Commits-118-blue?style=for-the-badge&logo=github" alt="Total Commits"/>
   <img src="https://img.shields.io/github/contributors/DDematto/DDematto?style=for-the-badge&label=Repos%20Contributed&logo=github" alt="Contributions"/>
 </p>
 
